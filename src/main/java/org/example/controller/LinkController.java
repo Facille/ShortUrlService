@@ -1,7 +1,7 @@
 package org.example.controller;
 
-import org.example.model.Url;
-import org.example.service.UrlService;
+import org.example.model.Link;
+import org.example.service.LinkService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,21 +13,21 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/links")
-public class UrlController {
+public class LinkController {
 
     @Autowired
-    private UrlService linkService;
+    private LinkService linkService;
 
     @PostMapping
-    public ResponseEntity<Url> createLink(@RequestParam String originalUrl, @RequestParam int clickLimit) {
+    public ResponseEntity<Link> createLink(@RequestParam String originalUrl, @RequestParam int clickLimit) {
         UUID userId = UUID.randomUUID();
-        Url createdLink = linkService.createShortLink(originalUrl, clickLimit, userId);
+        Link createdLink = linkService.createShortLink(originalUrl, clickLimit, userId);
         return new ResponseEntity<>(createdLink, HttpStatus.CREATED);
     }
 
     @GetMapping("/{shortUrl}")
     public ResponseEntity<?> redirectToOriginalUrl(@PathVariable String shortUrl) {
-        Url link = linkService.getLink(shortUrl);
+        Link link = linkService.getLink(shortUrl);
         if (link != null) {
             if (link.getClickCount() < link.getClickLimit() && LocalDateTime.now().isBefore(link.getExpirationDate())) {
                 linkService.incrementClickCount(link);
@@ -40,8 +40,8 @@ public class UrlController {
     }
 
     @PutMapping("/{id}/limit")
-    public ResponseEntity<Url> updateClickLimit(@PathVariable Long id, @RequestParam int newClickLimit) {
-        Url updatedLink = linkService.updateClickLimit(id, newClickLimit);
+    public ResponseEntity<Link> updateClickLimit(@PathVariable Long id, @RequestParam int newClickLimit) {
+        Link updatedLink = linkService.updateClickLimit(id, newClickLimit);
         return new ResponseEntity<>(updatedLink, HttpStatus.OK);
     }
 

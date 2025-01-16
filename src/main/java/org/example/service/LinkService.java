@@ -1,7 +1,7 @@
 package org.example.service;
 
-import org.example.model.Url;
-import org.example.repository.UrlRepository;
+import org.example.model.Link;
+import org.example.repository.LinklRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -11,13 +11,13 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
-public class UrlService {
+public class LinkService {
 
     @Autowired
-    private UrlRepository linkRepository;
+    private LinklRepository linkRepository;
 
-    public Url createShortLink(String originalUrl, int clickLimit, UUID userId) {
-        Url link = new Url();
+    public Link createShortLink(String originalUrl, int clickLimit, UUID userId) {
+        Link link = new Link();
         link.setOriginalUrl(originalUrl);
         link.setShortUrl(generateShortUrl(originalUrl, userId));
         link.setClickLimit(clickLimit);
@@ -32,11 +32,11 @@ public class UrlService {
         return UUID.randomUUID().toString().substring(0, 8);
     }
 
-    public Url getLink(String shortUrl) {
+    public Link getLink(String shortUrl) {
         return linkRepository.findByShortUrl(shortUrl);
     }
 
-    public void incrementClickCount(Url link) {
+    public void incrementClickCount(Link link) {
         link.setClickCount(link.getClickCount() + 1);
         linkRepository.save(link);
     }
@@ -47,8 +47,8 @@ public class UrlService {
 
     @Scheduled(fixedRate = 60000)
     public void checkExpiredLinks() {
-        List<Url> links = linkRepository.findAll();
-        for (Url link : links) {
+        List<Link> links = linkRepository.findAll();
+        for (Link link : links) {
             if (link.getClickCount() >= link.getClickLimit() || LocalDateTime.now().isAfter(link.getExpirationDate())) {
                 System.out.println("Link expired or limit reached: " + link.getShortUrl());
                 deleteLink(link.getId());
@@ -56,11 +56,11 @@ public class UrlService {
         }
     }
 
-    public List<Url> getLinksByUserId(UUID userId) {
+    public List<Link> getLinksByUserId(UUID userId) {
         return linkRepository.findByUserId(userId);
     }
-    public Url updateClickLimit(Long id, int newClickLimit) {
-        Url link = linkRepository.findById(id).orElseThrow(() -> new RuntimeException("Link not found"));
+    public Link updateClickLimit(Long id, int newClickLimit) {
+        Link link = linkRepository.findById(id).orElseThrow(() -> new RuntimeException("Link not found"));
         link.setClickLimit(newClickLimit);
         return linkRepository.save(link);
     }

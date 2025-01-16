@@ -1,8 +1,8 @@
 package org.example;
 
-import org.example.model.Url;
-import org.example.repository.UrlRepository;
-import org.example.service.UrlService;
+import org.example.model.Link;
+import org.example.repository.LinklRepository;
+import org.example.service.LinkService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -20,10 +20,10 @@ import static org.mockito.Mockito.*;
 public class ShortUrlServiceApplicationTests {
 
     @InjectMocks
-    private UrlService linkService;
+    private LinkService linkService;
 
     @Mock
-    private UrlRepository linkRepository;
+    private LinklRepository linkRepository;
 
     @BeforeEach
     public void setUp() {
@@ -36,7 +36,7 @@ public class ShortUrlServiceApplicationTests {
         int clickLimit = 10;
         UUID userId = UUID.randomUUID();
 
-        Url savedLink = new Url();
+        Link savedLink = new Link();
         savedLink.setId(1L);
         savedLink.setOriginalUrl(originalUrl);
         savedLink.setShortUrl("shortUrl");
@@ -45,27 +45,27 @@ public class ShortUrlServiceApplicationTests {
         savedLink.setExpirationDate(LocalDateTime.now().plusDays(1));
         savedLink.setUserId(userId);
 
-        when(linkRepository.save(any(Url.class))).thenReturn(savedLink);
+        when(linkRepository.save(any(Link.class))).thenReturn(savedLink);
 
-        Url createdLink = linkService.createShortLink(originalUrl, clickLimit, userId);
+        Link createdLink = linkService.createShortLink(originalUrl, clickLimit, userId);
 
         assertNotNull(createdLink);
         assertEquals(originalUrl, createdLink.getOriginalUrl());
         assertEquals(clickLimit, createdLink.getClickLimit());
         assertEquals(userId, createdLink.getUserId());
-        verify(linkRepository, times(1)).save(any(Url.class));
+        verify(linkRepository, times(1)).save(any(Link.class));
     }
 
     @Test
     public void testGetLink() {
         String shortUrl = "shortUrl";
-        Url link = new Url();
+        Link link = new Link();
         link.setShortUrl(shortUrl);
         link.setOriginalUrl("http://example.com");
 
         when(linkRepository.findByShortUrl(shortUrl)).thenReturn(link);
 
-        Url foundLink = linkService.getLink(shortUrl);
+        Link foundLink = linkService.getLink(shortUrl);
 
         assertNotNull(foundLink);
         assertEquals(shortUrl, foundLink.getShortUrl());
@@ -74,11 +74,11 @@ public class ShortUrlServiceApplicationTests {
 
     @Test
     public void testIncrementClickCount() {
-        Url link = new Url();
+        Link link = new Link();
         link.setId(1L);
         link.setClickCount(0);
 
-        when(linkRepository.save(any(Url.class))).thenReturn(link);
+        when(linkRepository.save(any(Link.class))).thenReturn(link);
 
         linkService.incrementClickCount(link);
 
@@ -102,14 +102,14 @@ public class ShortUrlServiceApplicationTests {
         Long linkId = 1L;
         int newClickLimit = 20;
 
-        Url link = new Url();
+        Link link = new Link();
         link.setId(linkId);
         link.setClickLimit(10);
 
         when(linkRepository.findById(linkId)).thenReturn(Optional.of(link));
         when(linkRepository.save(link)).thenReturn(link);
 
-        Url updatedLink = linkService.updateClickLimit(linkId, newClickLimit);
+        Link updatedLink = linkService.updateClickLimit(linkId, newClickLimit);
 
         assertNotNull(updatedLink);
         assertEquals(newClickLimit, updatedLink.getClickLimit());

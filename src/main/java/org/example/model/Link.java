@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-public class Url {
+public class Link {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "link_id_seq")
     @SequenceGenerator(name = "link_id_seq", sequenceName = "link_id_seq", allocationSize = 1)
@@ -17,7 +17,7 @@ public class Url {
     private int clickLimit;
     private int clickCount;
     private LocalDateTime expirationDate;
-    private UUID userId; // UUID пользователя
+    private UUID userId;
 
 
     public Long getId() {
@@ -70,7 +70,7 @@ public class Url {
 
     public UUID getUserId() { // Исправлено: метод должен называться getUser Id
         return userId;
-    }
+    } 
 
     public void setUserId(UUID userId) { // Исправлено: метод должен называться setUser Id
         this.userId = userId;
